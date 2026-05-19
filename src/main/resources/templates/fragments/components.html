@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<!-- HEADER FRAGMENT -->
+<th:block th:fragment="header(title)">
+    <div class="mb-4">
+        <h1 class="page-title">
+            <i th:if="${icon}" th:class="'fas fa-' + ${icon}" style="margin-right: 0.5rem;"></i>
+            <span th:text="${title}"></span>
+        </h1>
+    </div>
+</th:block>
+
+<!-- FORM GROUP FRAGMENT -->
+<th:block th:fragment="formGroup(field, label, type='text', placeholder='', required=false, step='', min='', max='')">
+    <div class="mb-3">
+        <label th:for="${field}" class="form-label">
+            <span th:text="${label}"></span>
+            <span th:if="${required}" class="text-danger">*</span>
+        </label>
+        <input 
+            th:id="${field}"
+            th:field="*{__${field}__}"
+            th:type="${type}"
+            class="form-control"
+            th:classappend="${#fields.hasErrors(field)} ? 'is-invalid'"
+            th:placeholder="${placeholder}"
+            th:step="${step != '' ? step : null}"
+            th:min="${min != '' ? min : null}"
+            th:max="${max != '' ? max : null}"
+        />
+        <div class="invalid-feedback" th:if="${#fields.hasErrors(field)}">
+            <span th:errors="${field}" th:text="${#fields.errors(field)[0]}"></span>
+        </div>
+    </div>
+</th:block>
+
+<!-- FORM SELECT FRAGMENT -->
+<th:block th:fragment="formSelect(field, label, options, required=false)">
+    <div class="mb-3">
+        <label th:for="${field}" class="form-label">
+            <span th:text="${label}"></span>
+            <span th:if="${required}" class="text-danger">*</span>
+        </label>
+        <select 
+            th:id="${field}"
+            th:field="*{__${field}__}"
+            class="form-select"
+            th:classappend="${#fields.hasErrors(field)} ? 'is-invalid'"
+        >
+            <option value="">-- Select an option --</option>
+            <option th:each="option : ${options}" th:value="${option}" th:text="${option}"></option>
+        </select>
+        <div class="invalid-feedback" th:if="${#fields.hasErrors(field)}">
+            <span th:errors="${field}"></span>
+        </div>
+    </div>
+</th:block>
+
+<!-- TEXTAREA FRAGMENT -->
+<th:block th:fragment="formTextarea(field, label, placeholder='', required=false, rows='3')">
+    <div class="mb-3">
+        <label th:for="${field}" class="form-label">
+            <span th:text="${label}"></span>
+            <span th:if="${required}" class="text-danger">*</span>
+        </label>
+        <textarea 
+            th:id="${field}"
+            th:field="*{__${field}__}"
+            class="form-control"
+            th:classappend="${#fields.hasErrors(field)} ? 'is-invalid'"
+            th:placeholder="${placeholder}"
+            th:rows="${rows}"
+        ></textarea>
+        <div class="invalid-feedback" th:if="${#fields.hasErrors(field)}">
+            <span th:errors="${field}"></span>
+        </div>
+    </div>
+</th:block>
+
+<!-- BUTTON GROUP FRAGMENT -->
+<th:block th:fragment="buttonGroup(submitText='Save', submitIcon='save', cancelUrl='/students')">
+    <div class="mb-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+            <i th:class="'fas fa-' + ${submitIcon}"></i>
+            <span th:text="${submitText}"></span>
+        </button>
+        <a th:href="${cancelUrl}" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Cancel
+        </a>
+    </div>
+</th:block>
+
+<!-- ACTION BUTTONS FRAGMENT -->
+<th:block th:fragment="actionButtons(id, showEdit=true, showDelete=true)">
+    <div class="btn-group" role="group">
+        <a 
+            th:href="@{/students/{id}(id=${id})}"
+            class="btn btn-sm btn-info"
+            title="View details"
+        >
+            <i class="fas fa-eye"></i> View
+        </a>
+        <th:block th:if="${showEdit}">
+            <a 
+                th:href="@{/students/{id}/edit(id=${id})}"
+                class="btn btn-sm btn-primary"
+                title="Edit student"
+            >
+                <i class="fas fa-edit"></i> Edit
+            </a>
+        </th:block>
+        <th:block th:if="${showDelete}">
+            <button 
+                type="button" 
+                class="btn btn-sm btn-danger"
+                data-bs-toggle="modal"
+                th:data-bs-target="'#deleteModal' + ${id}"
+                title="Delete student"
+            >
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        </th:block>
+    </div>
+</th:block>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<th:block th:fragment="deleteModal(id, itemName)">
+    <div 
+        th:id="'deleteModal' + ${id}"
+        class="modal fade"
+        tabindex="-1"
+        role="dialog"
+    >
+        <div class="modal-dialog">
+            <div class="modal-content" style="background: linear-gradient(135deg, rgba(31, 96, 219, 0.15) 0%, rgba(70, 150, 255, 0.1) 100%); border: 1px solid rgba(70, 150, 255, 0.2);">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                        Confirm Delete
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <strong th:text="${itemName}"></strong>?</p>
+                    <p class="text-danger small">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form 
+                        th:action="@{/students/{id}/delete(id=${id})}"
+                        method="POST"
+                        style="display: inline;"
+                    >
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<!-- EMPTY STATE FRAGMENT -->
+<th:block th:fragment="emptyState(icon='inbox', title, message)">
+    <div class="text-center py-5">
+        <div class="mb-3">
+            <i th:class="'fas fa-' + ${icon}" style="font-size: 3rem; color: rgba(70, 150, 255, 0.3);"></i>
+        </div>
+        <h4 th:text="${title}" style="color: rgba(224, 224, 224, 0.7);"></h4>
+        <p th:text="${message}" style="color: rgba(112, 112, 144, 1);"></p>
+    </div>
+</th:block>
+
+<!-- STATS CARD FRAGMENT -->
+<th:block th:fragment="statCard(icon, title, value, color='primary')">
+    <div class="card card-modern">
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <div style="flex: 1;">
+                    <h6 class="card-title mb-2" th:text="${title}"></h6>
+                    <h3 class="mb-0" th:text="${value}" style="background: linear-gradient(135deg, #469aff 0%, #1f60db 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></h3>
+                </div>
+                <div style="font-size: 2rem; color: rgba(70, 150, 255, 0.5);">
+                    <i th:class="'fas fa-' + ${icon}"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<!-- BADGE FRAGMENT -->
+<th:block th:fragment="badge(text, type='primary')">
+    <span th:class="'badge bg-' + ${type}" th:text="${text}"></span>
+</th:block>
+
+</html>
